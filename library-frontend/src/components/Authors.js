@@ -1,12 +1,13 @@
 import { useQuery, useMutation } from "@apollo/client"
 import { ALL_AUTHORS, EDIT_AUTHOR } from "../queries"
 import { useState } from "react"
+import Select from "react-select"
 
 const Authors = (props) => {
     const result = useQuery(ALL_AUTHORS)
     const [editAuthor] = useMutation(EDIT_AUTHOR)
 
-    const [name, setName] = useState("")
+    const [selectedAuthor, setSelectedAuthor] = useState(null)
     const [born, setBorn] = useState("")
 
     if (!props.show) {
@@ -20,12 +21,18 @@ const Authors = (props) => {
     const handleSubmit = (event) => {
         event.preventDefault()
 
+        if (!selectedAuthor || !born) {
+            return
+        }
+
+        const name = selectedAuthor.value
+
         editAuthor({
             variables: { name, setBornTo: Number(born) },
             refetchQueries: [{ query: ALL_AUTHORS }],
         })
 
-        setName("")
+        setSelectedAuthor(null)
         setBorn("")
     }
 
@@ -49,24 +56,31 @@ const Authors = (props) => {
                 </tbody>
             </table>
 
-            <h2>Set birthyear</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    name
-                    <input
-                        value={name}
-                        onChange={({ target }) => setName(target.value)}
-                    />
-                </div>
-                <div>
-                    born
-                    <input
-                        value={born}
-                        onChange={({ target }) => setBorn(target.value)}
-                    />
-                </div>
-                <button type="submit">update author</button>
-            </form>
+            {result.data.allAuthors.length > 0 && (
+                <>
+                    <h2>Set birthyear</h2>
+                    <form onSubmit={handleSubmit}>
+                        <div style={{ maxWidth: "250px" }}>
+                            <Select
+                                defaultValue={selectedAuthor}
+                                onChange={setSelectedAuthor}
+                                options={result.data.allAuthors.map((author) => ({
+                                    value: author.name,
+                                    label: author.name,
+                                }))}
+                            />
+                        </div>
+                        <div>
+                            born
+                            <input
+                                value={born}
+                                onChange={({ target }) => setBorn(target.value)}
+                            />
+                        </div>
+                        <button type="submit">update author</button>
+                    </form>
+                </>
+            )}
         </div>
     )
 }
