@@ -6,6 +6,7 @@ const Author = require("./models/author")
 require("dotenv").config()
 
 const mongoose = require("mongoose")
+const { GraphQLError } = require("graphql")
 mongoose.set("strictQuery", false)
 
 const MONGODB_URI = process.env.MONGODB_URI
@@ -181,8 +182,33 @@ const resolvers = {
             }
 
             book.author = author
-            await author.save()
-            await book.save()
+
+            try {
+                await author.save()
+            } catch (error) {
+                console.log("error on author save")
+                console.log("error ", error)
+                throw new GraphQLError("Saving a new author failed.", {
+                    extensions: {
+                        code: "BAD_USER_INPUT",
+                        invalidArgs: args.author,
+                        error,
+                    },
+                })
+            }
+
+            try {
+                await book.save()
+            } catch (error) {
+                console.log("book save error")
+                throw new GraphQLError("Saving a new book failed", {
+                    extensions: {
+                        code: "BAD_USER_INPUT",
+                        invalidArgs: args.title,
+                        error,
+                    },
+                })
+            }
 
             return book
         },
