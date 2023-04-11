@@ -56,7 +56,7 @@ const Authors = (props) => {
                 </tbody>
             </table>
 
-            {result.data.allAuthors.length > 0 && (
+            {result.data.allAuthors.length > 0 && props.token && (
                 <>
                     <h2>Set birthyear</h2>
                     <form onSubmit={handleSubmit}>

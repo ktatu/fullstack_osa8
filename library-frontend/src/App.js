@@ -1,26 +1,85 @@
-import { useState } from 'react'
-import Authors from './components/Authors'
-import Books from './components/Books'
-import NewBook from './components/NewBook'
+import { useState, useEffect } from "react"
+import Authors from "./components/Authors"
+import Books from "./components/Books"
+import NewBook from "./components/NewBook"
+import { LOGIN } from "./queries"
+import { useMutation } from "@apollo/client"
 
 const App = () => {
-  const [page, setPage] = useState('authors')
+    const [page, setPage] = useState("authors")
+    const [token, setToken] = useState(null)
 
-  return (
-    <div>
-      <div>
-        <button onClick={() => setPage('authors')}>authors</button>
-        <button onClick={() => setPage('books')}>books</button>
-        <button onClick={() => setPage('add')}>add book</button>
-      </div>
+    const handleLogout = () => {
+        setToken(null)
+    }
 
-      <Authors show={page === 'authors'} />
+    return (
+        <div>
+            <div>
+                <button onClick={() => setPage("authors")}>authors</button>
+                <button onClick={() => setPage("books")}>books</button>
+                {token ? <button onClick={() => setPage("add")}>add book</button> : null}
+                {token ? <button onClick={handleLogout}>Logout</button> : null}
+            </div>
 
-      <Books show={page === 'books'} />
+            <div style={{ paddingTop: "50px" }}>
+                {token ? null : <LoginForm setToken={setToken} />}
+            </div>
 
-      <NewBook show={page === 'add'} />
-    </div>
-  )
+            <Authors
+                show={page === "authors"}
+                token={token}
+            />
+
+            <Books show={page === "books"} />
+
+            <NewBook show={page === "add"} />
+        </div>
+    )
+}
+
+const LoginForm = ({ setToken }) => {
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
+
+    const [login] = useMutation(LOGIN)
+
+    const handleSubmit = async (event) => {
+        event.preventDefault()
+
+        login({
+            variables: { username, password },
+            onError: () => console.log("error"),
+            onCompleted: (data) => {
+                const token = data.login.value
+                setToken(token)
+                localStorage.setItem("login-token", token)
+            },
+        })
+
+        setUsername("")
+        setPassword("")
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <div>
+                username:
+                <input
+                    type="text"
+                    onChange={(event) => setUsername(event.target.value)}
+                />
+            </div>
+            <div>
+                password:
+                <input
+                    type="password"
+                    onChange={(event) => setPassword(event.target.value)}
+                />
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    )
 }
 
 export default App

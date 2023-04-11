@@ -23,10 +23,12 @@ const ALL_BOOKS = gql`
 `
 
 const CREATE_BOOK = gql`
-    mutation createBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
+    mutation addBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
         addBook(title: $title, author: $author, published: $published, genres: $genres) {
             title
-            author
+            author {
+                name
+            }
             published
             genres
         }
@@ -42,4 +44,12 @@ const EDIT_AUTHOR = gql`
     }
 `
 
-export { ALL_AUTHORS, ALL_BOOKS, CREATE_BOOK, EDIT_AUTHOR }
+const LOGIN = gql`
+    mutation login($username: String!, $password: String!) {
+        login(username: $username, password: $password) {
+            value
+        }
+    }
+`
+
+export { ALL_AUTHORS, ALL_BOOKS, CREATE_BOOK, EDIT_AUTHOR, LOGIN }
