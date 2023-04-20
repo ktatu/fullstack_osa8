@@ -6,7 +6,10 @@ const Books = (props) => {
     const [selectedGenre, setSelectedGenre] = useState("")
     const [genres, setGenres] = useState(null)
 
-    const queryBooks = useQuery(GET_BOOKS, { variables: { genre: selectedGenre } })
+    const queryBooks = useQuery(GET_BOOKS, {
+        variables: { genre: selectedGenre },
+        fetchPolicy: "network-only",
+    })
 
     useEffect(() => {
         if (queryBooks.data && selectedGenre === "") {
