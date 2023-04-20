@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Authors from "./components/Authors"
 import Books from "./components/Books"
 import NewBook from "./components/NewBook"
+import Recommendations from "./components/Recommendations"
 import { LOGIN } from "./queries"
 import { useMutation } from "@apollo/client"
 
@@ -19,6 +20,7 @@ const App = () => {
                 <button onClick={() => setPage("authors")}>authors</button>
                 <button onClick={() => setPage("books")}>books</button>
                 {token ? <button onClick={() => setPage("add")}>add book</button> : null}
+                {token ? <button onClick={() => setPage("recommend")}>recommend</button> : null}
                 {token ? <button onClick={handleLogout}>Logout</button> : null}
             </div>
 
@@ -32,6 +34,11 @@ const App = () => {
             />
 
             <Books show={page === "books"} />
+
+            <Recommendations
+                show={page === "recommend"}
+                loggedIn={token}
+            />
 
             <NewBook show={page === "add"} />
         </div>
